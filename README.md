@@ -15,17 +15,35 @@ ln -s ~/post-live-skill ~/.claude/skills/post-live
 需要 `ffmpeg`、`openai-whisper`、`rclone`，語義覆核那步需要 [llmshare](https://github.com/yazelin/duotify-ollama-cloud-setup)
 與 [course-pipeline](https://github.com/yazelin/course-pipeline) 的 `fix-terms.py`。
 
-## 兩支腳本
+## 會後指令
+
+先用總控腳本整理一場直播。第一次執行提供錄影、聊天室與 Gemini 筆記來源；在線峰值與 LINE 社群人數可省略。
+
+```bash
+python3 ~/post-live-skill/run.py <場次資料夾> \
+  --recording <錄影檔> --chat <聊天室檔> --notes <Gemini筆記檔> \
+  --online <在線峰值> --line <LINE社群人數>
+
+# 預覽指令與預期檔案，不執行
+python3 ~/post-live-skill/run.py <場次資料夾> --dry-run
+
+# 唯讀驗收，缺少項目時回傳非零
+python3 ~/post-live-skill/run.py <場次資料夾> --check
+```
+
+流程會保存每步完成標記，重跑時跳過已完成步驟。用 `--from terms` 等步驟代號可強制從該步重跑後續流程。用詞表與切段計劃仍需人工整理；腳本不會上傳、部署或發布貼文。完整操作與驗收規則見 [SKILL.md](SKILL.md)。
+
+個別工具可單獨執行，供除錯使用：
 
 ```bash
 # 把 terms.md（每行「錯 → 對」）套進 whisper 輸出，重產逐字稿與字幕
-python3 ~/post-live-skill/apply-terms.py
+cd <場次存檔資料夾> && python3 ~/post-live-skill/apply-terms.py
 
 # 從整場的 JSON 切某一段的字幕，時間軸平移到該段的 0 秒；多區間 = 中間那塊剪掉
 python3 ~/post-live-skill/srt-slice.py 第2段.srt 5588-7021.8 7979-9454.5
 ```
 
-完整流程與踩過的坑在 [SKILL.md](SKILL.md)。
+轉錄、正體化、切影片等單步命令與踩過的坑在 [SKILL.md](SKILL.md)。
 
 ## 三個最值錢的結論
 
